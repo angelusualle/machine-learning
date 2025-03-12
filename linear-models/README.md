@@ -2,9 +2,8 @@
 Linear models are relationships expressed in a linear function (or more commonly affine).
 
 A linear function can be defined as any function such that:
-$$
-f(ax + by) = a*f(x) + b*f(y), \\ \forall x, y
-$$
+
+$$ f(ax + by) = a*f(x) + b*f(y),  \newline \forall x, y $$
 
 Or that scalar multiplication and addition give you same result if the function is applied before or after.
 
@@ -15,10 +14,13 @@ f(x) - c = g(x), \\ g(x) \in Linear
 $$
 
 In linear algebra form the function could be expressed as:
+
 $$
 \vec{a}\cdot\vec{x} + bias
 $$
+
 Where:
+
 $$
 a \in R^m \\
 x \in R^m \\
@@ -33,7 +35,7 @@ $$
 \vec{y} = \mathbf{X}*\vec{b}
 $$
 
-Where:
+
 $$
 X \in R^{n,m} \\
 \vec{b} \in R^m \\
@@ -42,3 +44,6 @@ $$
 
 ## Assumptions:
 The data can truly be modeled this way, this this globally linear relationship, which is not often the case.
+
+## Additional modifications:
+The data itself can be transformed prior so the a linear model is more applicable, for example dummy encoding categorical values into one hot encoded vectors to represent a constant addition term for a particular distinct value that's learned, or multiplying features to capture interactions or polynomial expansions that multiply features with themselves.
