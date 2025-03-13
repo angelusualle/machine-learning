@@ -43,7 +43,7 @@ X \in R^{n,m} \\
 $$
 
 ## Assumptions:
-The data can truly be modeled this way, this this globally linear relationship, which is not often the case.
+The data can truly be modeled this way, this this globally linear relationship (as described above).
 
 ## Additional modifications:
 The data itself can be transformed prior so the a linear model is more applicable, for example dummy encoding categorical values into one hot encoded vectors to represent a constant addition term for a particular distinct value that's learned, or multiplying features to capture interactions or polynomial expansions that multiply features with themselves.
