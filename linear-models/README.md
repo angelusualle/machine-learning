@@ -1,6 +1,8 @@
 # Linear models
 Linear models are relationships expressed in a linear function (or more commonly affine).
 
+Assume here * is matrix multiplication.
+
 A linear function can be defined as any function such that:
 
 $$ f(ax + by) = a*f(x) + b*f(y),  \newline \forall x, y $$
