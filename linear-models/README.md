@@ -48,4 +48,8 @@ $$
 The data can truly be modeled this way, this this globally linear relationship (as described above).
 
 ## Additional modifications:
-The data itself can be transformed prior so the a linear model is more applicable, for example dummy encoding categorical values into one hot encoded vectors to represent a constant addition term for a particular distinct value that's learned, or multiplying features to capture interactions or polynomial expansions that multiply features with themselves.
+The data itself can be transformed prior so the a linear model is more applicable.
+
+When encoding categorical variables for linear regression, using a method often called 'dummy encoding' (or 'one-hot encoding with a dropped category') is essential. This involves creating k-1 binary (0/1) features for a categorical variable with k unique categories. This k-1 approach specifically avoids the 'dummy variable trap.' The trap occurs if you create k binary features for k categories (full one-hot encoding without dropping one), because then one of those binary columns becomes perfectly predictable from the others (e.g., if a value isn't in category A or B, and there are only 3 categories, it must be in C), leading to perfect multicollinearity. By using k-1 features, this perfect multicollinearity is broken, making the model suitable for linear regression. The coefficients for these k-1 dummy variables are then interpreted as the average effect or difference in the outcome variable compared to the baseline (the omitted category), holding all other variables constant.
+
+Multiplying features to capture interactions or polynomial expansions that multiply features with themselves.
