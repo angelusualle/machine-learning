@@ -9,7 +9,7 @@ with implementations of approaches found in literature.
 
 ## Installing Dependencies:
 Reproducing the environment (on a new machine):
-
+0. Install docker: https://docs.docker.com/desktop/setup/install/mac-install/.
 1. Install `pyenv` and `pyenv-virtualenv` on the new machine.
 2. Copy your project directory (including .python-version and requirements.txt) to the new machine.
 3. cd into the project directory.
