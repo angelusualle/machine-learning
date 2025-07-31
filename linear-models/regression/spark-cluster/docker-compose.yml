@@ -4,7 +4,7 @@ services:
   spark-master:
     image: bitnami/spark:3.5
     volumes:
-      - ../../../.data:/data # Mount host 'data' folder to container '/data'
+      - /tmp/.data:/tmp/.data # Mount host 'data' folder to container '/data'
       - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
     environment:
       - SPARK_MODE=master
@@ -19,7 +19,8 @@ services:
   spark-worker:
     image: bitnami/spark:3.5
     volumes:
-      - ../../../.data:/data # Mount host 'data' folder to container '/data'
+      - /tmp/.data:/tmp/.data # Mount host 'data' folder to container '/data'
+      - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
     environment:
       - SPARK_MODE=worker
       - SPARK_WORKER_MEMORY=8g
