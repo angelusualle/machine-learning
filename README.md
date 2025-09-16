@@ -7,7 +7,7 @@ Machine Learning is about learning useful structures from data.
 In this repository we will be writing down the theory and performing experiments (perhaps also developing useful libraries)
 with implementations of approaches found in literature.
 
-## Installing Dependencies:
+## Installing Dependencies (Mac):
 Reproducing the environment (on a new machine):
 1. Install docker: https://docs.docker.com/desktop/setup/install/mac-install/.
 0. Install Java: `brew install --cask temurin@21`
