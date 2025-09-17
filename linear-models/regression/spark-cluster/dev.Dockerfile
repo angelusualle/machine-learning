@@ -1,5 +1,4 @@
-# Start from the base image you like
-FROM jupyter/pyspark-notebook:spark-3.5.0
+FROM bitnami/spark:3.5
 
 # Switch to root user to install things system-wide if needed, or just copy files
 USER root
