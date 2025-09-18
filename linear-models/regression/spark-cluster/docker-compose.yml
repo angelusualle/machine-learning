@@ -4,7 +4,7 @@ services:
   spark-master:
     image: bitnami/spark:3.5
     volumes:
-      - /tmp/.data:/tmp/.data # Mount host 'data' folder to container '/data'
+      - ../:/home/jovyan/workspace
       - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
     environment:
       - SPARK_MODE=master
@@ -18,7 +18,7 @@ services:
   spark-worker:
     image: bitnami/spark:3.5
     volumes:
-      - /tmp/.data:/tmp/.data # Mount host 'data' folder to container '/data'
+      - ../:/home/jovyan/workspace
       - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
     environment:
       - SPARK_MODE=worker
@@ -37,3 +37,4 @@ services:
     container_name: spark_dev_client
     volumes:
       - ../:/home/jovyan/workspace
+      - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
