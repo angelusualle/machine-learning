@@ -2,7 +2,8 @@ version: '3.8'
 
 services:
   spark-master:
-    image: bitnami/spark:3.5
+    build:
+      dockerfile: dev.Dockerfile
     volumes:
       - ../:/home/jovyan/workspace
       - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
@@ -16,7 +17,8 @@ services:
       - '8080:8080'
 
   spark-worker:
-    image: bitnami/spark:3.5
+    build:
+      dockerfile: dev.Dockerfile
     volumes:
       - ../:/home/jovyan/workspace
       - ./spark-defaults.conf:/opt/bitnami/spark/conf/spark-defaults.conf
