@@ -9,5 +9,5 @@ with implementations of approaches found in literature.
 
 ## Installing Dependencies and running the code:
 For reproducibility particularly around distributed algorithms we use `docker-compose` to set up the containers and environment for running the code:
-1. Install docker: https://docs.docker.com/desktop/setup/install/mac-install/.
+1. Install docker: https://docs.docker.com/desktop/setup/install/mac-install/. Increase default resources available to be up to 20GB.
 2. For a given algorithm, there's a `/cluster` folder where you can run a variant of `docker-compose up` to set up and `docker-compose down` to tear down the environment. See the notebook for the algorithm for specific instructions.
