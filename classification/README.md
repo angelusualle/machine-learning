@@ -181,3 +181,63 @@ This logarithmic relationship makes intuitive sense: rare, low-probability event
 Entropy, then, is simply the average (expected value) of this surprise across all possible events $k$:
 
 $$\text{Entropy} = E_k[-\log_2(p_k)]$$
+
+![Entropy of a Bernoulli Trial](assets/bernoulli-trial.png)
+
+Cross-Entropy extends entropy to measure how inefficient it is to transmit information using a different scheme from the scheme based on the true probability distribution, and minimizing it minimizes the difference in probability distributions between the true and the predicted:
+
+$$\text{CrossEntropy}(q, p) = \text{EntropyOfTruth}(q) + \text{KLDivergence}(q||p)$$
+
+Where $q$ is the true distribution and $p$ is our predicted distribution. Entropy of Truth is the constant intrinsic entropy of the underlying true distribution $q$. The KL divergence is the extra bits (cost we incur) by using another coding scheme (optimal for distribution $p$) to transmit messages from $q$, and can be computed by $\sum_i q(i) \cdot \log\left(\frac{q(i)}{p(i)}\right)$ in the discrete case. Consider that this is equivalent to:
+
+$$-\sum_i q(i) \cdot (\log(p_i) - \log(q_i))$$
+
+Which is a more natural view of the extra cost, however, it is written in the normal form by convention and as a reminder that it is always positive (as it is a distance measure, as we will soon see).
+
+$$
+\begin{aligned}
+\text{CrossEntropy}(q, p) &= -\sum_i q(i) \cdot \log(q(i)) + \sum_i q(i) \cdot \log\left(\frac{q(i)}{p(i)}\right) \\
+&= -\sum_i q(i) \cdot \log(p(i))
+\end{aligned}
+$$
+
+In this setting, the ground truth $q(i)$ acts as a filter: it is $0$ for all incorrect classes, meaning those terms vanish from the sum. The loss depends entirely on the probability assigned to the correct class, $\log(p_{\text{correct}})$. If the prediction is wrong ($p \approx 0$), $\log(p)$ approaches $-\infty$ which the negative sign flips to a massive penalty. If the prediction is confident ($p \approx 1$), the loss smoothly approaches $0$.
+
+![Why Cross-Entropy is a "Soft" Signal](assets/cross-entropy-soft.png)
+
+To prove that at a minimum Cross-Entropy we get the true posterior out of $p$, consider that $\text{KLDivergence}(q||p)$ is the only term in $\text{CrossEntropy}(q, p)$ that depends on $p$, our estimated posterior. So we must show that $\text{KLDivergence}(q||p)$ is always positive or $0$ (so it has an absolute minimum), and is $0$ if and only if $q = p$ (so it has a unique minimum at the posterior). This proof is called **Gibbs' Inequality**.
+
+We will use an upper bound to $\ln(x)$ as $\ln(x) \leq x - 1$:
+
+![Visual Proof: ln(x) <= x - 1](assets/upper-bound-ln.png)
+
+Then plug it in, and note that this inequality still holds if we multiply each $\ln(x)$ or $x - 1$ by the same zero or positive numbers (like probabilities):
+
+$$
+\begin{aligned}
+\text{KLDivergence}(q||p) &= \sum_i q_i \log\left(\frac{q_i}{p_i}\right) \\
+-\text{KLDivergence}(q||p) &= \sum_i q_i \log\left(\frac{p_i}{q_i}\right) \leq \sum_i q_i \left(\frac{p_i}{q_i} - 1\right) \\
+-\text{KLDivergence}(q||p) &\leq \sum_i p_i - \sum_i q_i
+\end{aligned}
+$$
+
+Since $q$ and $p$ are valid probability distributions, their sums equal $1$. Therefore, $\sum_i p_i - \sum_i q_i = 1 - 1 = 0$. Multiplying both sides by $-1$ (which flips the inequality sign), we get:
+
+$$\text{KLDivergence}(q||p) \geq 0$$
+
+And the divergence is exactly $0$ if and only if the distributions are identical:
+
+$$\text{KLDivergence}(q||p) = 0 \iff p_i = q_i \quad \forall i$$
+
+Convexity is seen by the second derivative always being non-negative with respect to outputs:
+
+$$
+\begin{aligned}
+\text{CrossEntropy}(q, p) &= -\sum_i q_i \log(p_i) \\
+\frac{\partial^2 \text{CrossEntropy}(q, p)}{\partial p^2} &= \text{diag}\left(\frac{q_i}{p_i^2}\right)
+\end{aligned}
+$$
+
+Since the eigenvalues are non-negative (positive for the true class, zero for others), this forms a **Positive Semi-Definite** matrix, therefore it is convex.
+
+In the case of convex functions, Gradient Descent is guaranteed to find the global minimum with an adequate learning rate (again, with respect to the probabilities, and this provides an ideal signal for more complex compositions that create those probabilities).
