@@ -86,29 +86,49 @@ In modern Deep Learning, we retain this Log-Odds framework, but for a fundamenta
 
 Since we train these complex models using Gradient Descent, the **quality of the gradient signal** is paramount. We need a loss function to minimize that provides a strong, clear signal to the parameters exactly when the model is wrong.
 
-If we use the Negative Log-Likelihood as our objective function to minimize, we can use Softmax as an activation function (the inverse canonical link function to move from logit space—real numbers representing relative log-odds with a geometric mean baseline, aka symmetric—to multinomial probability space) and it gives us a good gradient signal:
+If we use the Negative Log-Likelihood as our objective function to minimize, we can use Softmax as an activation function (the inverse canonical link function to move from logit space—real numbers representing relative log-odds with a geometric mean baseline—to multinomial probability space). This combination gives us an incredibly clean gradient signal.
 
-$$\text{Loss} = \text{NLL} = - \sum_i \ln(p_{\text{correct class}}) = - \sum_i \vec{y}_i \cdot \ln(\vec{p}_i)$$
+For a single sample, the loss across all classes $C$ is:
+$$L = \text{NLL} = - \sum_{j=1}^C y_j \ln(p_j)$$
 
-Per sample $i$:
+Where $p_j$ is the Softmax probability for class $j$:
+$$p_j = \text{Softmax}(\vec{z})_j = \frac{e^{z_j}}{\sum_{l=1}^C e^{z_l}}$$
 
-$$\vec{p}_i = \text{Softmax}(\vec{z}_i) = \left[ \frac{e^{z_{i0}}}{\sum_j e^{z_{ij}}}, \frac{e^{z_{i1}}}{\sum_j e^{z_{ij}}}, \dots \right]$$
+### Deriving the Gradient with respect to the Logits
+To find the gradient for a specific logit $z_k$, we use the chain rule. 
 
-$$
-\begin{aligned}
-\frac{\partial L}{\partial \vec{z}_i} &= \frac{\partial}{\partial \vec{z}_i} \left( -\vec{y}_i \cdot \ln(\text{Softmax}(\vec{z}_i)) \right) \\
-&= - \sum_{j=1}^C y_{ij} \frac{\partial}{\partial z_{ij}} \left( \ln\left( \frac{e^{z_{ij}}}{\sum_l^C e^{z_{il}}} \right) \right) \\
-&= - \sum_{j=1}^C y_{ij} \frac{\partial}{\partial z_{ij}} \left( \ln(e^{z_{ij}}) - \ln\left(\sum_{l=1}^C e^{z_{il}}\right) \right) \\
-&= - \sum_{j=1}^C y_{ij} \left( 1 - \frac{e^{z_{ij}}}{\sum_{l=1}^C e^{z_{il}}} \right) \\
-&= - \sum_{j=1}^C y_{ij} \left( 1 - \text{Softmax}(\vec{z}_i)_j \right)
-\end{aligned}
-$$
+**1. The Setup:**
+$$\frac{\partial L}{\partial z_k} = - \sum_{j=1}^C y_j \frac{\partial \ln(p_j)}{\partial z_k}$$
 
-So practically, since we one-hot encode the class, it boils down to:
+**2. The Softmax Derivative (Accounting for Cross-Talk):**
+Because the denominator of the Softmax function for class $j$ contains the logit $z_k$, changing $z_k$ affects the probability of *every* class. The derivative of the log-probability is a known calculus identity relying on the Kronecker delta ($\delta_{jk} = 1$ if $j=k$, and $0$ otherwise):
+$$\frac{\partial \ln(p_j)}{\partial z_k} = \delta_{jk} - p_k$$
 
-$$\frac{\partial \text{NLL}}{\partial z_{\text{correct}}} = - \left( 1 - \text{Softmax}(z_{\text{correct}}) \right)$$
+**3. Substitution and Expansion:**
+Substituting this identity back into our loss derivative:
+$$\frac{\partial L}{\partial z_k} = - \sum_{j=1}^C y_j (\delta_{jk} - p_k)$$
 
-Which is a clear signal to backpropagate on: how far the probability for the correct class is from 1. Or, simply, prediction error.
+Because $\delta_{jk}$ is only $1$ when $j=k$, we can distribute $y_j$ and evaluate the sum:
+$$\frac{\partial L}{\partial z_k} = - \left( y_k(1 - p_k) + \sum_{j \neq k} y_j(0 - p_k) \right)$$
+
+Distributing the negative sign and factoring out $p_k$:
+$$\frac{\partial L}{\partial z_k} = -y_k + y_k p_k + \sum_{j \neq k} y_j p_k$$
+$$\frac{\partial L}{\partial z_k} = -y_k + p_k \left( y_k + \sum_{j \neq k} y_j \right)$$
+
+**4. The Final Simplification:**
+Because our labels are one-hot encoded, the sum of all $y$ values across all classes is exactly $1$. Therefore, the entire term in the parentheses becomes $1$, leaving us with:
+$$\frac{\partial L}{\partial z_k} = p_k - y_k$$
+
+### The Practical Takeaway
+This mathematical unification shows us exactly what the gradient is doing for both states of the one-hot vector:
+
+* **For the Correct Class ($y = 1$):**
+  $$\frac{\partial L}{\partial z_{\text{correct}}} = p_{\text{correct}} - 1$$
+* **For an Incorrect Class ($y = 0$):**
+  $$\frac{\partial L}{\partial z_{\text{incorrect}}} = p_{\text{incorrect}} - 0 = p_{\text{incorrect}}$$
+
+In vector form, this gives us the most elegant equation in classification. The gradient to backpropagate is simply the **prediction error**:
+$$\nabla_{\vec{z}} L = \vec{p} - \vec{y}$$
 
 We use this symmetric Softmax rather than the statistics-based reference class so that gradient descent has a more direct path to update logits for the correct class, rather than trying to lower logits for all the other classes. If it wasn't the symmetric Softmax and we had a defined reference class $K$, it would be:
 
