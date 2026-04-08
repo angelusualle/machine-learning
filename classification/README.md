@@ -100,23 +100,25 @@ To find the gradient for a specific logit $z_k$, we use the chain rule.
 **1. The Setup:**
 $$\frac{\partial L}{\partial z_k} = - \sum_{j=1}^C y_j \frac{\partial \ln(p_j)}{\partial z_k}$$
 
-**2. The Softmax Derivative (Accounting for Cross-Talk):**
-Because the denominator of the Softmax function for class $j$ contains the logit $z_k$, changing $z_k$ affects the probability of *every* class. The derivative of the log-probability is a known calculus identity relying on the Kronecker delta ($\delta_{jk} = 1$ if $j=k$, and $0$ otherwise):
+**2. The Softmax Derivative (Concrete to Abstract):**
+Because the denominator of the Softmax function for class $j$ contains the logit $z_k$, changing $z_k$ affects the probability of *every* class. 
+
+If we evaluate the gradients manually for the specific cases of the correct vs. incorrect class, we see a distinct behavior:
+$$
+\nabla_{z_{\text{correct}}} \text{NLL} = - \left(1 - \frac{e^{z_{\text{correct}}}}{\sum_{k=1}^{C} e^{z_k}}\right) = -(1 - p_{\text{correct}})
+$$
+$$
+\nabla_{z_{\text{incorrect}}} \text{NLL} = \left(\frac{e^{z_{\text{incorrect}}}}{\sum_{k=1}^{C} e^{z_k}}\right) = p_{\text{incorrect}}
+$$
+
+Notice the pattern: the derivative of the log-probability $\ln(p_j)$ with respect to $z_k$ is $(1 - p_k)$ when they are the same class, and $(0 - p_k)$ when they are different. We can elegantly unify this using the Kronecker delta function ($\delta_{jk} = 1$ if $j=k$, and $0$ otherwise):
 $$\frac{\partial \ln(p_j)}{\partial z_k} = \delta_{jk} - p_k$$
 
-**3. Substitution and Expansion:**
-Substituting this identity back into our loss derivative:
+**3. The Final Simplification:**
+Now, we plug this unified derivative back into our original chain rule setup:
 $$\frac{\partial L}{\partial z_k} = - \sum_{j=1}^C y_j (\delta_{jk} - p_k)$$
 
-Because $\delta_{jk}$ is only $1$ when $j=k$, we can distribute $y_j$ and evaluate the sum:
-$$\frac{\partial L}{\partial z_k} = - \left( y_k(1 - p_k) + \sum_{j \neq k} y_j(0 - p_k) \right)$$
-
-Distributing the negative sign and factoring out $p_k$:
-$$\frac{\partial L}{\partial z_k} = -y_k + y_k p_k + \sum_{j \neq k} y_j p_k$$
-$$\frac{\partial L}{\partial z_k} = -y_k + p_k \left( y_k + \sum_{j \neq k} y_j \right)$$
-
-**4. The Final Simplification:**
-Because our labels are one-hot encoded, the sum of all $y$ values across all classes is exactly $1$. Therefore, the entire term in the parentheses becomes $1$, leaving us with:
+Because our labels are one-hot encoded, only the term where $j$ is the true class will have a value of $y_j = 1$ (the rest are $0$). This collapses the sum. We distribute the $1$, and the leading negative sign flips the inside terms:
 $$\frac{\partial L}{\partial z_k} = p_k - y_k$$
 
 ### The Practical Takeaway
