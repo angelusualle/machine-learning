@@ -263,3 +263,46 @@ $$
 Since the eigenvalues are non-negative (positive for the true class, zero for others), this forms a **Positive Semi-Definite** matrix, therefore it is convex.
 
 In the case of convex functions, Gradient Descent is guaranteed to find the global minimum with an adequate learning rate (again, with respect to the probabilities, and this provides an ideal signal for more complex compositions that create those probabilities).
+
+### Common Evaluation Metrics
+While we optimize cross entropy or negative log likelihood for ease of computation, we often report the performance of classification models on a out-of-sample dataset (or a test dataset) with more intuitive measures.
+
+#### Accuracy
+One simple approach is to accuracy:
+$$
+\text{Accuracy} = \frac{\text{Correct Predictions}}{\text{All predictions}}
+$$
+
+This is a good summary metric if the label's distribution is uniform, however it can be misleading if the labels are not uniform, for example if 99% of the test data is one class, then predicting that one class will give you 99% accuracy, without a model.
+
+#### Precision
+Another approach is precision, that says when a class was predicted, how often times was it correct.
+
+$$
+\text{Precision}_{K} = \frac{\text{Correct Class K Predictions}}{\text{Class K Predictions}}
+$$
+
+You can aggregate across classes by mean if you need a single value:
+$$
+\text{Mean Precision} = \bar{Precision_k}
+$$
+
+This can also be misleading on it's own because you could construct a model that mostly outputs a single class and only ever outputs another class when its very sure - one classes precision will be very low but the rest artificially high and the itself will therefore be inflated, not weighing all points equally.
+
+#### Recall
+Another approach is recall, for a given class, how many points did correctly classify for that class out of all the points that truly belong to that class
+
+$$
+\text{Recall} = \frac{\text{Correct Class K Predictions}}{\text{True Class K Points}}
+$$
+
+It likewise can be averaged across classes for a summary statistic:
+
+$$
+\text{Mean Recall} = \bar{Recall_k}
+$$
+
+The pit fall here is similar to that of the accuracy, if theres a dominant class you can get a decently high 
+
+
+TODO: confirm pitfalls with AI, something seems off.
