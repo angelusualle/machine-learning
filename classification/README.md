@@ -1,4 +1,4 @@
-## Classification
+# Classification
 
 Classification is where you are trying to predict a class membership (discrete) of data point(s). The decision is what class an input belongs to.
 
@@ -94,7 +94,7 @@ $$L = \text{NLL} = - \sum_{j=1}^C y_j \ln(p_j)$$
 Where $p_j$ is the Softmax probability for class $j$:
 $$p_j = \text{Softmax}(\vec{z})_j = \frac{e^{z_j}}{\sum_{l=1}^C e^{z_l}}$$
 
-### Deriving the Gradient with respect to the Logits
+## Deriving the Gradient with respect to the Logits
 To find the gradient for a specific logit $z_k$, we use the chain rule. 
 
 **1. The Setup:**
@@ -121,7 +121,7 @@ $$\frac{\partial L}{\partial z_k} = - \sum_{j=1}^C y_j (\delta_{jk} - p_k)$$
 Because our labels are one-hot encoded, only the term where $j$ is the true class will have a value of $y_j = 1$ (the rest are $0$). This collapses the sum. We distribute the $1$, and the leading negative sign flips the inside terms:
 $$\frac{\partial L}{\partial z_k} = p_k - y_k$$
 
-### The Practical Takeaway
+## The Practical Takeaway
 This mathematical unification shows us exactly what the gradient is doing for both states of the one-hot vector:
 
 * **For the Correct Class ($y = 1$):**
@@ -169,13 +169,13 @@ Computers have trouble representing very big or very small numbers, and because 
 
 Maximum Likelihood is a universal statistical principle applied far beyond classification (e.g., deriving MSE for regression).
 
-### Cross-Entropy
+## Cross-Entropy
 
 However, specifically in the context of classification, maximizing Likelihood is mathematically identical to minimizing Cross-Entropy.
 
 While the math is the same, we prefer the Cross-Entropy framework to shift our perspective from statistics (finding parameters that fit the data) to Information Theory (minimizing the 'distance' between our predictions and the truth). This aligns perfectly with the Deep Learning goal of minimizing a loss function. So moving forward for classification, we will use the term Cross-Entropy, as it highlights the information-theoretic goal: minimizing the 'distance' between our predicted probability distribution and the true distribution.
 
-#### Why Cross-Entropy?
+### Why Cross-Entropy?
 
 To effectively estimate the posterior, we need a loss function with specific mathematical properties:
 
@@ -264,10 +264,10 @@ Since the eigenvalues are non-negative (positive for the true class, zero for ot
 
 In the case of convex functions, Gradient Descent is guaranteed to find the global minimum with an adequate learning rate (again, with respect to the probabilities, and this provides an ideal signal for more complex compositions that create those probabilities).
 
-### Common Evaluation Metrics
+## Common Evaluation Metrics
 While we optimize cross entropy or negative log likelihood for ease of computation, we often report the performance of classification models on a out-of-sample dataset (or a test dataset) with more intuitive measures.
 
-#### Accuracy
+### Accuracy
 One simple approach is to accuracy:
 $$
 \text{Accuracy} = \frac{\text{Correct Predictions}}{\text{All predictions}}
@@ -275,34 +275,67 @@ $$
 
 This is a good summary metric if the label's distribution is uniform, however it can be misleading if the labels are not uniform, for example if 99% of the test data is one class, then predicting that one class will give you 99% accuracy, without a model.
 
-#### Precision
+### Precision
 Another approach is precision, that says when a class was predicted, how often times was it correct.
 
 $$
 \text{Precision}_{K} = \frac{\text{Correct Class K Predictions}}{\text{Class K Predictions}}
 $$
 
-You can aggregate across classes by mean if you need a single value:
-$$
-\text{Mean Precision} = \bar{Precision_k}
-$$
+This can also be misleading on it's own because you could construct a model that only ever classifies to certain classes when its very sure, increasing the precision but it's occluding the missed cases.
 
-This can also be misleading on it's own because you could construct a model that mostly outputs a single class and only ever outputs another class when its very sure - one classes precision will be very low but the rest artificially high and the itself will therefore be inflated, not weighing all points equally.
-
-#### Recall
+### Recall
 Another approach is recall, for a given class, how many points did correctly classify for that class out of all the points that truly belong to that class
 
 $$
 \text{Recall} = \frac{\text{Correct Class K Predictions}}{\text{True Class K Points}}
 $$
 
-It likewise can be averaged across classes for a summary statistic:
+This is also known as sensitivity. A pitfall here would be similar to accuracy, where you could have great recall by classifying the dominant class.
+
+### F1 Score
+So precision and recall tend to be two aspects of performance (sensitivity and specificity), they can be combined into an F1 Score (harmonic mean of precision and recall):
 
 $$
-\text{Mean Recall} = \bar{Recall_k}
+\text{F}_{1 k} = \frac{2 \cdot \text{Precision}_k \cdot \text{Recall}_k}{\text{Precision}_k + \text{Recall}_k}
 $$
 
-The pit fall here is similar to that of the accuracy, if theres a dominant class you can get a decently high 
+The harmonic mean is extremely sensitive to imbalances. If either Precision or Recall drops near zero, the F1-Score is violently pulled down with it. It prevents models from cheating by maximizing one metric at the extreme expense of the other.
+
+### The Threshold Problem and ROC-AUC
+Up to this point, metrics like Accuracy and F1-Score assume the model outputs a strict `1` or `0`. However, algorithms like Logistic Regression actually output a **probability** (e.g., $0.72$).
+
+Because the choice of threshold is arbitrary and heavily depends on business logic (e.g., are false alarms worse than missed cases?), we must evaluate models across *all possible thresholds* using the **Receiver Operating Characteristic (ROC) Curve**.
+
+The ROC Curve plots two metrics against each other as the threshold slides from $0.00$ to $1.00$:
+
+**1. True Positive Rate (TPR)**
+Also known as Recall or Sensitivity. Out of all actual positives, what fraction did we correctly predict?
+$$
+\text{TPR} = \frac{\text{True Positives}}{\text{True Positives} + \text{False Negatives}}
+$$
+
+**2. False Positive Rate (FPR)**
+Out of all actual negatives, what fraction did we accidentally flag as positive (a false alarm)?
+$$
+\text{FPR} = \frac{\text{False Positives}}{\text{False Positives} + \text{True Negatives}}
+$$
+
+#### Area Under the Curve (AUC)
+The Area Under the ROC Curve (ROC-AUC) provides a single summary statistic of the model's predictive power, entirely independent of the threshold. 
+* **AUC = 0.50:** The model is guessing randomly (a 45-degree diagonal line).
+* **AUC = 1.00:** The model perfectly separates positives from negatives.
+
+ROC-AUC has a powerful probabilistic meaning. An AUC of $0.85$ means that if you randomly select one true Positive instance and one true Negative instance, there is an 85% chance the model assigned a higher probability to the Positive one. It is a measure of pure **rank-ordering** ability.
 
 
-TODO: confirm pitfalls with AI, something seems off.
+TODO: Review above get it right!
+TODO: PR-AUC
+TODO: Confusion matrix
+
+
+## Aggregating Across Classes
+To get a single summary statistic (from a class specific summary statistic) for a multi-class model, any of these metrics can be aggregated. First, you calculate the class-specific metric using a **One-vs-All** approach (treating one class as the positive target and all others as the negative background). Then, you combine them:
+
+* **Macro-Average:** An unweighted mean across all classes. This treats a minority class exactly equally to a majority class, forcing the model to perform well across the board.
+* **Weighted-Average:** A mean weighted by the proportion of true samples belonging to each class. This reflects the overall system accuracy but can hide poor performance on minority classes.
