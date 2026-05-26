@@ -294,7 +294,7 @@ $$
 This is also known as sensitivity. A pitfall here would be similar to accuracy, where you could have great recall by classifying the dominant class.
 
 ### F1 Score
-So precision and recall tend to be two aspects of performance (sensitivity and specificity), they can be combined into an F1 Score (harmonic mean of precision and recall):
+Because Precision and Recall represent two competing aspects of performance, they can be combined into an F1 Score (the harmonic mean of precision and recall):
 
 $$
 \text{F}_{1 k} = \frac{2 \cdot \text{Precision}_k \cdot \text{Recall}_k}{\text{Precision}_k + \text{Recall}_k}
@@ -321,21 +321,42 @@ $$
 \text{FPR} = \frac{\text{False Positives}}{\text{False Positives} + \text{True Negatives}}
 $$
 
-#### Area Under the Curve (AUC)
+#### Area Under the ROC Curve (ROC-AUC)
 The Area Under the ROC Curve (ROC-AUC) provides a single summary statistic of the model's predictive power, entirely independent of the threshold. 
 * **AUC = 0.50:** The model is guessing randomly (a 45-degree diagonal line).
 * **AUC = 1.00:** The model perfectly separates positives from negatives.
 
 ROC-AUC has a powerful probabilistic meaning. An AUC of $0.85$ means that if you randomly select one true Positive instance and one true Negative instance, there is an 85% chance the model assigned a higher probability to the Positive one. It is a measure of pure **rank-ordering** ability.
 
+#### The Imbalance Trap: Precision-Recall (PR) Curves
+When we have massive class imbalances, ROC-AUC can be highly misleading. If you have a massive set of negative cases, a model could trigger thousands of false alarms, but the False Positive Rate (FPR) will still look incredibly small because the denominator is so large. This can be disastrous for a business.
 
-TODO: Review above get it right!
-TODO: PR-AUC
-TODO: Confusion matrix
+#### Area Under the Precision-Recall Curve (PR-AUC)
+The Area Under the Precision-Recall Curve (PR-AUC) is the gold standard approach for imbalanced data. We vary the decision threshold and plot Precision against Recall to measure the model's predictive power exclusively on the minority class.
 
+This gives us direct, interpretable, and generalizable performance information. It allows the business to make explicit tradeoffs, such as: *"If we want to guarantee this level of Recall, this is the exact Precision (and false alarm rate) we must accept."*
 
-## Aggregating Across Classes
+### Aggregating Across Classes
 To get a single summary statistic (from a class specific summary statistic) for a multi-class model, any of these metrics can be aggregated. First, you calculate the class-specific metric using a **One-vs-All** approach (treating one class as the positive target and all others as the negative background). Then, you combine them:
 
 * **Macro-Average:** An unweighted mean across all classes. This treats a minority class exactly equally to a majority class, forcing the model to perform well across the board.
 * **Weighted-Average:** A mean weighted by the proportion of true samples belonging to each class. This reflects the overall system accuracy but can hide poor performance on minority classes.
+
+### The Confusion Matrix
+The Confusion Matrix is the foundational table from which all classification metrics (Accuracy, Precision, Recall, F1) are derived. It provides a granular breakdown of exactly *where* a model is succeeding and *how* it is failing.
+
+By standard convention (e.g., `scikit-learn`), **Rows represent the Actual (True) classes**, and **Columns represent the Predicted classes**.
+
+#### 1. The Binary Confusion Matrix
+In a standard binary problem, the matrix is a 2x2 grid that maps directly to our core metrics. 
+
+| | Predicted Negative (0) | Predicted Positive (1) |
+| :--- | :--- | :--- |
+| **Actual Negative (0)** | **True Negative (TN)** <br> *(Correctly rejected)* | **False Positive (FP)** <br> *(Type I Error / False Alarm)* |
+| **Actual Positive (1)** | **False Negative (FN)** <br> *(Type II Error / Missed Case)* | **True Positive (TP)** <br> *(Correctly caught)* |
+
+#### 2. The Multi-Class Confusion Matrix
+When scaling to multi-class problems (e.g., predicting Cats, Dogs, and Birds), the matrix expands to an $N \times N$ grid. 
+
+* **The Main Diagonal:** Represents all correct predictions (Actual Class = Predicted Class). A mathematically perfect model will have non-zero values *only* on this diagonal.
+* **The Off-Diagonals:** Expose the exact nature of the model's errors. For example, looking at the "Cat" row and the "Dog" column tells you exactly how many true cats the model accidentally misclassified as dogs, revealing hidden biases in the model's logic.
