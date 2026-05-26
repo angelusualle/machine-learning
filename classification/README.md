@@ -265,7 +265,7 @@ Since the eigenvalues are non-negative (positive for the true class, zero for ot
 In the case of convex functions, Gradient Descent is guaranteed to find the global minimum with an adequate learning rate (again, with respect to the probabilities, and this provides an ideal signal for more complex compositions that create those probabilities).
 
 ## Common Evaluation Metrics
-While we optimize cross entropy or negative log likelihood for ease of computation, we often report the performance of classification models on a out-of-sample dataset (or a test dataset) with more intuitive measures.
+While we optimize cross entropy or negative log likelihood for ease of computation, we often report the performance of classification models with more intuitive measures.
 
 ### Accuracy
 One simple approach is to accuracy:

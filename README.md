@@ -31,7 +31,14 @@ $$\hat{R} = \frac{1}{N}\sum_{i}^N L(f(x_i), y_i)$$
 
 In the supervised learning setting, the decision we make is estimating the output and the risk is our prediction error. If the output is discrete, the task is called classification; if it is continuous, it is called regression.
 
-Since we’re optimizing $\hat{R}(f)$ the sample average as a proxy for true risk, we face the danger of **overfitting**. The model may "memorize" the specific noise and idiosyncrasies of the training set rather than learning the underlying patterns. Mathematically, this results in a low Empirical Risk but a high True Risk, and we usually split the dataset to train on one subset and measure performance on the set that's held out as a better estimate of the true risk.
+Since we’re optimizing $\hat{R}(f)$ the sample average as a proxy for true risk, we face the danger of **overfitting**. The model may "memorize" the specific noise and idiosyncrasies of the training set rather than learning the underlying patterns. Mathematically, this results in a low Empirical Risk but a high True Risk.
+
+### Bridging the gap between Emprical and True Risk
+To bridge this gap between empriical and true risk, we try to estimate the true risk by running our trained model on a dataset it hasn't seen (out-of-sample). The simplest way to is to hold back a fraction of the data at random and run our our model against it to get our expected True Risk, however this can be brittle as the fraction of the data may be non representative of the general data distribution (we might get easier or harder examples).
+
+To mitigate this, there is a K-fold validation strategy, which requires quick easy fitting but gives you the best estimate of the true risk by segementing the data into different folds and for each fold, training on the rest of the folds and measuring performance on the target fold. Then averaging the risk across the folds.
+
+TODO: check with AI
 
 ## Modeling Assumptions
 
