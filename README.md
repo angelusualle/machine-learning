@@ -33,13 +33,36 @@ In the supervised learning setting, the decision we make is estimating the outpu
 
 Since we’re optimizing $\hat{R}(f)$ the sample average as a proxy for true risk, we face the danger of **overfitting**. The model may "memorize" the specific noise and idiosyncrasies of the training set rather than learning the underlying patterns. Mathematically, this results in a low Empirical Risk but a high True Risk.
 
-### Bridging the gap between Emprical and True Risk
-To bridge this gap between empriical and true risk, we try to estimate the true risk by running our trained model on a dataset it hasn't seen (out-of-sample). The simplest way to is to hold back a fraction of the data at random and run our our model against it to get our expected True Risk, however this can be brittle as the fraction of the data may be non representative of the general data distribution (we might get easier or harder examples).
+### Bridging the Gap: Training, Validation, and Testing
+To bridge the gap between Empirical Risk (training error) and True Risk (generalization error), we must evaluate our model on data it has never seen. However, a critical distinction must be made between evaluating a model to *tune* it, and evaluating a model to *audit* it.
 
-To mitigate this, there is a K-fold validation strategy, which requires quick easy fitting but gives you the best estimate of the true risk by segementing the data into different folds and for each fold, training on the rest of the folds and measuring performance on the target fold. Then averaging the risk across the folds.
+**The Model Selection Trap (Data Leakage)**
+If we simply split our data into a "Train" and "Test" set, and repeatedly adjust our hyperparameters (like polynomial degree or regularization strength) to maximize the score on the Test set, we introduce **optimism bias**. By picking the hyperparameters that perform best on that specific Test set, information about the Test data "leaks" into the model. The Test set is effectively acting as training data for the hyperparameters, meaning its error rate is no longer an unbiased estimate of True Risk.
 
-TODO: check with AI
+To prevent this, we must divide our data into three distinct functional roles:
+1. **The Training Set:** Used by the optimization algorithm to learn the model's weights/parameters.
+2. **The Validation Set:** Used by the modeler to evaluate different algorithms, tune hyperparameters, and perform early stopping.
+3. **The Test Set:** A locked vault of data used exactly *once* at the very end of the project to provide a mathematically unbiased estimate of True Risk.
 
+#### Validation Strategies
+When constructing the Validation Set, we face a tradeoff between computational cost and statistical variance.
+
+* **The Static Validation Split:** We divide our accessible data (excluding the locked Test Set) into a static Train and Validation fraction. While computationally cheap, this single-split approach has high variance. It can be incredibly brittle because the random fraction may not be perfectly representative of the general data distribution. 
+* **K-Fold Cross-Validation:** To mitigate variance, we segment the accessible training data into $K$ mutually exclusive subsets (folds). For each fold $k$, we train the model from scratch on the remaining $K-1$ folds and measure its performance on the target fold $k$. We then average the validation risk across all $K$ folds. This maximizes data efficiency and provides a highly stable evaluation metric for hyperparameter tuning. While it comes at a computational cost (requiring $K$ separate model fits—infeasible for massive deep learning models), it is the gold standard for model selection.
+
+#### The Standard Operating Procedure (SOP): From Validation to Production
+Cross-validation is strictly an evaluation procedure for the Validation phase. The standard engineering pipeline proceeds as follows:
+
+1. **The Global Holdout:** Split the full dataset into a Working Set (e.g., 80%) and a final Test Set (20%). Lock the Test Set away.
+2. **The Scouts (Validation):** Perform K-Fold Cross-Validation exclusively on the 80% Working Set. The $K$ models trained here act merely as "scouts" to estimate how a specific set of hyperparameters will generalize.
+3. **Hyperparameter Tuning:** Adjust hyperparameters and repeat Step 2 until the Cross-Validation risk is minimized. Once the optimal configuration is found, discard all $K$ temporary scout models.
+4. **The Final Train:** Using those winning hyperparameters, train **one single production model** on 100% of the Working Set. A fundamental rule of statistical learning is that more data reduces variance; giving the final model the entire Working Set yields the most stable decision boundary.
+5. **The Final Audit (Testing):** Evaluate this newly trained production model on the locked Test Set from Step 1. This provides the final, unbiased estimate of generalization error to report to stakeholders.
+
+K-Fold evaluates the model-building **procedure** (Algorithm + Hyperparameters + Data Size). By averaging the $K$ models, you get an unbiased estimate of how well your *learning strategy* generalizes. Once proven, you apply that exact strategy to 100% of the training data.
+
+ **The Small Data Exception:** While the 3-way split is the industry standard, it breaks down when data is severely limited (e.g., a medical study with 150 patients) or when there is absolutely zero model selection occurring. If you are not tuning hyperparameters, selecting features, or comparing algorithms, there is no selection process to introduce optimism bias. In these regimes, we drop the Test Set, rely exclusively on K-Fold Cross-Validation for our official unbiased estimate of True Risk, and deploy the final model trained on 100% of the data.
+ 
 ## Modeling Assumptions
 
 In both classification and regression, every model carries a specific set of assumptions—known as Inductive Bias—about how the features relate to the label.
