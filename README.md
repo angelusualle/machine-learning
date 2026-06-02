@@ -121,7 +121,27 @@ Because of this, even if a highly flexible model perfectly maximizes the likelih
 
 A solution to reduce the variance or flexibility is regularization (typically via a continuous penalty function) - the process of introducing supplemental information into a learning algorithm to prevent overfitting and reduce generalization error. Mathematically, it is achieved by applying a penalty to the complexity of the model, forcing the optimization process to trade off between minimizing empirical risk (fitting the training data) and restricting the effective capacity of the hypothesis space.
 
-Regularization can also be viewed as a non-uniform prior in the Bayesian Inference framework’s Maximum A Posteriori (MAP) estimate.
+We can look at learning algorithms as optimizing a Likelihood function (Maximum Likelihood Framework), that is that the best estimate for parameters of a model are those that maximize the likelihood of seeing the data.
+
+To understand from a theoretical view why likelihood works well, we can look at two proven facts: the Cramér-Rao theorem, and the fact that the likelihood-optimized estimator converges to the bound provided by that theorem. 
+
+Information is generally defined as the measure of a reduction of uncertainty. **Fisher Information** ($\mathcal{I}$) is formally defined as the variance of the score (the gradient) of the log-likelihood:
+
+$$\mathcal{I}(\theta) = \text{Var}\left[\frac{\partial L}{\partial \theta}\right] = -E\left[\frac{\partial^2 L}{\partial \theta^2}\right]$$
+
+Equality can be shown with calculus (Second Bartlett Identity).
+
+Because the gradient is a measure of the log-likelihood's sensitivity to parameter changes, its variance tells us how fast that sensitivity changes.
+
+A likelihood function with high curvature means the gradient changes rapidly around the true value of $\theta$. This indicates that the data is highly informative and allows for a precise estimate. A flat likelihood, where the gradient is stable and doesn't change much, provides little information.
+
+And the Cramér-Rao theorem states:
+
+$$\text{Var}(\hat{\theta}) \geq \frac{1}{\mathcal{I}(\theta)}$$
+
+That is, the variance of any estimator is lower bounded by the inverse of information. It has been proven that the likelihood-optimized estimator converges to that bound, so it wastes no information, and is therefore optimal.
+
+On top of MLE, regularization can also be viewed as a non-uniform prior in the Bayesian Inference framework’s Maximum A Posteriori (MAP) estimate.
 
 The Maximum A Posteriori (MAP) estimate comes from Bayes' rule:
 
@@ -149,10 +169,9 @@ Or we could learn the representation from the data - deep learning can be viewed
 
 ### Approach to specific modeling techniques:
 
-In the subsequent supervised-learning sections, we will explore various modeling techniques. For each algorithm, our primary task will be to explicitly identify its underlying statistical assumptions and utilize mathematical mechanisms (such as Conditional Mutual Information or correlation tests) to validate their applicability to our data.
+In the subsequent supervised-learning sections, we will explore various modeling techniques. For each algorithm, our primary tasks will be to explicitly identify its underlying statistical assumptions and utilize mathematical mechanisms to validate their applicability to our data for interpertability, then show how to navigate the bias variance trade off to opitimize generalization performance.
 
-Ultimately, the goal of supervised learning remains constant: we seek a data-efficient model that provides the closest possible approximation to the Bayes Optimal Rule. We measure this success by the model's ability to minimize generalization error on unseen data, while deliberately navigating the fundamental trade-offs between predictive capacity and model interpretability.
-
+Ultimately, the goal of supervised learning remains constant: we seek a data-efficient model that provides the closest possible approximation to the Bayes Optimal Rule.
 ---
 ## Repository Structure
 

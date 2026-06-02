@@ -44,27 +44,7 @@ Now, $p(1 - p)$: if the model is confidently wrong (e.g., $p \approx 0$ but $y =
 
 So, to optimize a discriminative classification model—for gradient-related reasons as we will show shortly—we typically use Maximum Likelihood Estimation (MLE). This framework states that the optimal parameters are those that maximize the conditional probability of observing the true labels given our training data $P(Y|X)$.
 
-Likelihood in the context of maximum likelihood is not a distribution $P(\text{parameters}|Y)$, since the parameters are assumed to be fixed, but instead it is a function $L(\text{parameters}) = P(Y|\text{parameters})$. This function measures the probability of the data, assuming some parameters have a specific value. While mathematically calculated as a conditional probability, we interpret it differently: rather than summing over data outcomes, we treat the data as fixed and vary the parameters. We assume the best parameters are those that maximize the probability of the data we actually observed.
-
-This approach is possible precisely because our classification model outputs a valid probability distribution (via Softmax, as we will see), allowing us to define and maximize this likelihood directly. In both the generative case and the discriminative case as a loss function, "Likelihood" means exactly the same thing: it is the probability of observing data assuming some hidden cause (a fixed parameter in the case of the loss function of discriminative models, and a random variable in the case of generative models).
-
-To understand from a theoretical view why likelihood works well, we can look at two proven facts: the Cramér-Rao theorem, and the fact that the likelihood-optimized estimator converges to the bound provided by that theorem. 
-
-Information is generally defined as the measure of a reduction of uncertainty. **Fisher Information** ($\mathcal{I}$) is formally defined as the variance of the score (the gradient) of the log-likelihood:
-
-$$\mathcal{I}(\theta) = \text{Var}\left[\frac{\partial L}{\partial \theta}\right] = -E\left[\frac{\partial^2 L}{\partial \theta^2}\right]$$
-
-Equality can be shown with calculus (Second Bartlett Identity).
-
-Because the gradient is a measure of the log-likelihood's sensitivity to parameter changes, its variance tells us how fast that sensitivity changes.
-
-A likelihood function with high curvature means the gradient changes rapidly around the true value of $\theta$. This indicates that the data is highly informative and allows for a precise estimate. A flat likelihood, where the gradient is stable and doesn't change much, provides little information.
-
-And the Cramér-Rao theorem states:
-
-$$\text{Var}(\hat{\theta}) \geq \frac{1}{\mathcal{I}(\theta)}$$
-
-That is, the variance of any estimator is lower bounded by the inverse of information. It has been proven that the likelihood-optimized estimator converges to that bound, so it wastes no information, and is therefore optimal.
+Likelihood in the context of maximum likelihood is not a distribution $P(\text{parameters}|Y)$, since the parameters are assumed to be fixed, but instead it is a function $L(\text{parameters}) = P(Y|\text{parameters})$. This function measures the probability of the data, assuming some parameters have a specific value. You can read more on this in the [supervised learning README](../README.md).
 
 Mathematically, for classification, this is:
 
