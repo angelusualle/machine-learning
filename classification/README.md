@@ -74,6 +74,10 @@ $$L = \text{NLL} = - \sum_{j=1}^C y_j \ln(p_j)$$
 Where $p_j$ is the Softmax probability for class $j$:
 $$p_j = \text{Softmax}(\vec{z})_j = \frac{e^{z_j}}{\sum_{l=1}^C e^{z_l}}$$
 
+Or perhaps more elegantly for a dataset:
+
+$$L = \text{NLL} = - \sum_{i=1}^N y_i^T \ln(\vec{p(x_i)})$$
+
 ## Deriving the Gradient with respect to the Logits
 To find the gradient for a specific logit $z_k$, we use the chain rule. 
 
