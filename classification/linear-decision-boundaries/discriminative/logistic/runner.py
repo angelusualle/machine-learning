@@ -4,8 +4,8 @@ from pyspark.ml.classification import LogisticRegression
 from pyspark.ml.evaluation import BinaryClassificationEvaluator, MulticlassClassificationEvaluator
 from pyspark.ml import Pipeline
 
-NUM_FEATURES = 16194304
-MODEL_ID = "trained_2e-4_default_max_iter_8m_feats"
+NUM_FEATURES = 10194304
+MODEL_ID = "trained_1e-4_default_max_iter_10m_feats"
 spark = SparkSession.builder.appName("TrainAndHyperParameterTune") \
     .master(f"spark://spark-master:7077") \
     .config("spark.kryoserializer.buffer.max", "256m") \
@@ -26,7 +26,7 @@ lr = LogisticRegression(
     featuresCol="features", 
     labelCol="click",
     elasticNetParam=1.0,  
-    regParam=0.0002
+    regParam=0.0001
 
 )
 
