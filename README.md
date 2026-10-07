@@ -169,7 +169,7 @@ Or we could learn the representation from the data - deep learning can be viewed
 
 ### Approach to specific modeling techniques:
 
-In the subsequent supervised-learning sections, we will explore various modeling techniques. For each algorithm, our primary tasks will be to explicitly identify its underlying statistical assumptions and utilize mathematical mechanisms to validate their applicability to our data for interpertability, then show how to navigate the bias variance trade off to opitimize generalization performance.
+In the subsequent supervised-learning sections, we will explore various modeling techniques. For each algorithm, our primary tasks will be to explicitly identify its underlying statistical assumptions and utilize mathematical mechanisms to validate their applicability to our data for interpertability, then show how to navigate the bias variance trade off to optimize generalization performance.
 
 Ultimately, the goal of supervised learning remains constant: we seek a data-efficient model that provides the closest possible approximation to the Bayes Optimal Rule.
 ---
